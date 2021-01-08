@@ -70,7 +70,7 @@
             x_displacement += e.movementX / scale;
             y_displacement += e.movementY / scale;
 
-            draw();
+            requestAnimationFrame(draw);
         });
 
         c.addEventListener("mousedown", () => mouse_down = true);
@@ -88,7 +88,7 @@
             zoom_anchor.x = e.offsetX;
             zoom_anchor.y = e.offsetY;
 
-            draw();
+            requestAnimationFrame(draw);
         })
     </script>
 </body>
