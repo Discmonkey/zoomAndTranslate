@@ -1,5 +1,7 @@
 <head>
     <title> Zoom and Translate </title>
+
+    <comment> With help from </comment>
 </head>
 
 <body>
@@ -11,10 +13,7 @@
         let scale = 1.0;
         let x_displacement = 0;
         let y_displacement = 0;
-        let previous_scale = 1;
-        let previous_x_displacement = 0;
-        let previous_y_displacement = 0;
-        
+
         let zoom_anchor = {x: 0, y: 0};
         
         const c = document.getElementById("drawing")
@@ -22,32 +21,17 @@
 
         const draw = () => {
 
+            const previous = context.getTransform();
+
             context.resetTransform();
             context.clearRect(0, 0, 1000, 1000);
 
-
-            let canvas_coord = {
-                x: (zoom_anchor.x / previous_scale) - previous_x_displacement,
-                y: (zoom_anchor.y / previous_scale) - previous_y_displacement,
-            }
-
+            context.translate(x_displacement, y_displacement);
+            context.translate(zoom_anchor.x, zoom_anchor.y);
             context.scale(scale, scale);
+            context.translate(-zoom_anchor.x, -zoom_anchor.y);
 
-            let non_displaced_coord = {
-                x: canvas_coord.x * scale,
-                y: canvas_coord.y * scale,
-            }
-
-            let shift = {
-                x: (zoom_anchor.x - non_displaced_coord.x) / scale,
-                y: (zoom_anchor.y - non_displaced_coord.y) / scale
-            }
-
-            context.translate(shift.x + x_displacement, shift.y + y_displacement);
-
-            previous_x_displacement = shift.x;
-            previous_y_displacement = shift.y;
-            previous_scale = scale;
+            // context.transform(previous.a, previous.b, previous.c, previous.d, previous.e, previous.f);
 
             for (let i = 0; i < 1000; i += 50) {
                 for (let j = 0; j < 1000; j += 50) {
@@ -59,6 +43,11 @@
                     context.fillRect(i, j, 5, 5);
                 }
             }
+
+            x_displacement = 0;
+            y_displacement = 0;
+            scale = 1.0;
+
         }
 
         draw();
@@ -67,8 +56,8 @@
         c.addEventListener("mousemove", (e) => {
             if (!mouse_down) return
 
-            x_displacement += e.movementX / scale;
-            y_displacement += e.movementY / scale;
+            x_displacement += e.movementX;
+            y_displacement += e.movementY;
 
             requestAnimationFrame(draw);
         });
@@ -80,9 +69,9 @@
             e.preventDefault();
 
             if (e.deltaY < 0) {
-                scale *= 1.4;
+                scale = 2;
             } else {
-                scale /= 1.4;
+                scale = 1 / 2;
             }
 
             zoom_anchor.x = e.offsetX;
